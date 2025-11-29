@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speech-to-Text Translation System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            margin-top: 50px;
+        }
+
+        .button-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        form {
+            margin-right: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .info-block {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 600px;
+            text-align: left;
+        }
+
+        .info-block h2 {
+            margin-bottom: 10px;
+        }
+
+        .info-block p {
+            line-height: 1.5;
+        }
+
+        .button-image {
+            margin-bottom: 10px;
+        }
+        img {
+            height: 100px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to Indian Regional Language Speech to Text Translation</h1>
+    <div class="button-container">
+        <form action="/live" method="GET">
+            <img src="https://img.freepik.com/premium-vector/voice-recording-studio-man-headphones-standing-with-headphones-singing-flat-style-concept-boy-records-new-song-karaoke-party-flat-vector-illustration-isolated-white-background_275421-229.jpg" alt="Live Image" class="button-image"><br>
+            <button type="submit">Live</button>
+        </form>
+        <form action="/file-upload" method="GET">
+            <img src="https://cdn-icons-png.flaticon.com/512/4147/4147103.png" alt="Upload Image" class="button-image"><br>
+            <button type="submit">File Upload</button>
+        </form>
+        <form action="/converse" method="GET">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTcQW-IBehHgW2Hlzs3juYQdOyxjaBY8012MiR1rvYeyA&s" alt="Converse Image" class="button-image"><br>
+            <button type="submit">Converse</button>
+        </form>
+    </div>
+    <div class="info-block">
+        <h2>About the System</h2>
+        <p>This system allows you to perform speech-to-text translation in Indian regional languages. Use the following buttons:</p>
+        <ul>
+            <li><strong>Live:</strong> Start live recording for translation.</li>
+            <li><strong>File Upload:</strong> Upload an audio file for translation in the desired language.</li>
+            <li><strong>Converse:</strong> Start a conversation with translated text.</li>
+        </ul>
+    </div>
+</body>
+</html>

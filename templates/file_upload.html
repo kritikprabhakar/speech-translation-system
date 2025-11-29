@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload and Translation</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>File Upload and Translation</h1>
+
+    <!-- FORM START -->
+    <form id="file_upload_form" enctype="multipart/form-data">
+        <label for="file_input">Upload audio file:</label>
+        <input type="file" id="file_input" name="file" accept=".wav, .mp3">
+
+        <!-- Hidden Inputs Required by Backend -->
+        <input type="hidden" name="spoken_language" id="spoken_language_hidden" value="English">
+        <input type="hidden" name="target_language" id="target_language_hidden" value="Hindi">
+
+        <button type="submit">Upload File</button>
+    </form>
+    <!-- FORM END -->
+
+    <div id="transcription_box" class="scroll-box"></div>
+
+    <br>
+
+    <label for="file_language_dropdown">Select File Language:</label>
+    <select id="file_language_dropdown">
+        <option value="English">English</option>
+        <option value="Hindi">Hindi</option>
+        <option value="Telugu">Telugu</option>
+        <option value="Kannada">Kannada</option>
+        <option value="Bangla">Bengali</option>
+        <option value="Malayalam">Malayalam</option>
+        <option value="Marathi">Marathi</option>
+        <option value="Gujarati">Gujarati</option>
+        <option value="German">German</option>
+        <option value="French">French</option>
+    </select>
+
+    <label for="target_language_dropdown">Select Target Language:</label>
+    <select id="target_language_dropdown">
+        <option value="Hindi">Hindi</option>
+        <option value="Telugu">Telugu</option>
+        <option value="Kannada">Kannada</option>
+        <option value="Bangla">Bengali</option>
+        <option value="Malayalam">Malayalam</option>
+        <option value="Marathi">Marathi</option>
+        <option value="Gujarati">Gujarati</option>
+        <option value="German">German</option>
+        <option value="French">French</option>
+    </select>
+
+    <button id="translate_button">Translate Only</button>
+
+    <div id="translation_box" class="scroll-box"></div>
+
+    <script>
+        $(document).ready(function() {
+
+            var transcription_box = document.getElementById('transcription_box');
+            var translation_box   = document.getElementById('translation_box');
+            var file_input        = document.getElementById('file_input');
+
+            // Update hidden fields when dropdown changes
+            $('#file_language_dropdown').on('change', function () {
+                $('#spoken_language_hidden').val(this.value);
+            });
+
+            $('#target_language_dropdown').on('change', function () {
+                $('#target_language_hidden').val(this.value);
+            });
+
+            // Preview audio
+            file_input.onchange = function() {
+                var file = file_input.files[0];
+                var reader = new FileReader();
+                reader.onload = function(event) {
+                    var audio = new Audio(event.target.result);
+                    audio.controls = true;
+                    transcription_box.innerHTML = '';
+                    transcription_box.appendChild(audio);
+                };
+                reader.readAsDataURL(file);
+            };
+
+            // Upload file + STT + Translate
+            $('#file_upload_form').submit(function(event) {
+                event.preventDefault();
+
+                var file = file_input.files[0];
+                if (!file) {
+                    alert("Please select a file first.");
+                    return;
+                }
+
+                var formData = new FormData(this);
+
+                // UPDATE THIS URL TO YOUR CURRENT MINIKUBE TUNNEL URL
+                fetch("http://127.0.0.1:50153/translate", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(data => {
+                    transcription_box.innerHTML = "<p>" + data.transcription + "</p>";
+                    translation_box.innerHTML   = "<p>" + data.translated_text + "</p>";
+                })
+                .catch(err => console.error("Error:", err));
+            });
+
+            // Translate-only button (audio blob)
+            $('#translate_button').click(function() {
+                var audioEl = transcription_box.firstChild;
+                if (!audioEl || !audioEl.src) {
+                    alert("Upload an audio file first.");
+                    return;
+                }
+
+                var audio_data = audioEl.src;
+                var targetLang = $('#target_language_dropdown').val();
+
+                var formData = new FormData();
+                formData.append('audio_data', audio_data);
+                formData.append('target_language', targetLang);
+
+                // UPDATE THIS URL TOO
+                fetch("http://127.0.0.1:50153/translate-audio", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(data => {
+                    translation_box.innerHTML = "<p>" + data.translated_text + "</p>";
+                })
+                .catch(err => console.error("Error:", err));
+            });
+
+        });
+    </script>
+
+</body>
+</html>

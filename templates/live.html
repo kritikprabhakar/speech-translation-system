@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Speech-to-Text Translation</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        h1 {
+            text-align: center;
+        }
+        .container {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+        .transcription-container {
+            flex: 1;
+            margin-right: 20px;
+        }
+        .history-container {
+            align-items: center;
+            flex: 1;
+            border: 1px solid black;
+            height: 400px;
+            overflow-y: scroll;
+        }
+        .history-item {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+        }
+        h2 {
+            text-align: center;
+        }
+        .text_input {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <h1>Live Speech-to-Text Translation</h1>
+    <div class="container">
+        <div class="transcription-container">
+            <label for="live_textarea">Transcribed Text:</label>
+            <div id="transcription_box" class="transcription-box">
+                <textarea id="live_textarea" class="text_input" title="Live transcribed text" placeholder="Transcribed text will appear here"></textarea>
+            </div>
+            <button id="start_button">Start Recording</button>
+            <label for="input_language_dropdown">Select Input Language:</label>
+            <select id="input_language_dropdown">
+                <option value="en">English</option>
+                <option value="hi">Hindi</option>
+                <option value="te">Telugu</option>
+                <option value="kn">Kannada</option>
+                <option value="bn">Bengali</option>
+                <option value="ml">Malayalam</option>
+                <option value="mr">Marathi</option>
+                <option value="gu">Gujarati</option>
+                <option value="de">German</option>
+                <option value="fr">French</option>
+            </select>
+            <label for="target_language_dropdown">Select Target Language:</label>
+            <select id="target_language_dropdown">
+                <option value="hi">Hindi</option>
+                <option value="te">Telugu</option>
+                <option value="kn">Kannada</option>
+                <option value="bn">Bengali</option>
+                <option value="ml">Malayalam</option>
+                <option value="mr">Marathi</option>
+                <option value="gu">Gujarati</option>
+                <option value="de">German</option>
+                <option value="fr">French</option>
+            </select>
+            <button id="translate_button">Translate</button>
+            <button id="clear_button">Clear</button>
+        </div>
+        <div class="history-container">
+            <h2>Translation History</h2>
+            <div id="history"></div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            var recognition = new webkitSpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+
+            var transcription_box = document.getElementById('transcription_box');
+            var history_container = document.getElementById('history');
+            var live_textarea = document.getElementById('live_textarea');
+
+            var start_button = document.getElementById('start_button');
+            var translate_button = document.getElementById('translate_button');
+            var clear_button = document.getElementById('clear_button');
+            var input_language_dropdown = document.getElementById('input_language_dropdown');
+            var target_language_dropdown = document.getElementById('target_language_dropdown');
+
+            var final_transcript = '';
+            var history = [];
+
+            start_button.onclick = function() {
+                recognition.lang = input_language_dropdown.value;
+                recognition.start();
+            };
+
+            recognition.onresult = function(event) {
+                var interim_transcript = '';
+                for (var i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        final_transcript += event.results[i][0].transcript;
+                    } else {
+                        interim_transcript += event.results[i][0].transcript;
+                    }
+                }
+                live_textarea.value = final_transcript + interim_transcript;
+            };
+
+            translate_button.onclick = function() {
+                var input_text = live_textarea.value.trim();
+                var input_language = input_language_dropdown.value;
+                var target_language = target_language_dropdown.value;
+                translateText(input_text, input_language, target_language);
+            };
+
+            clear_button.onclick = function() {
+                live_textarea.value = '';
+                final_transcript = '';
+            };
+
+            function translateText(text, inputLanguage, targetLanguage) {
+                var url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=" + inputLanguage + "&tl=" + targetLanguage + "&dt=t&q=" + encodeURI(text);
+                $.get(url, function(response) {
+                    var translated_text = response[0][0][0];
+                    history.push({ input: text, translated: translated_text });
+                    updateHistory();
+                });
+            }
+
+            function updateHistory() {
+                history_container.innerHTML = '';
+                history.forEach(function(item, index) {
+                    var historyItem = document.createElement('div');
+                    historyItem.className = 'history-item';
+                    historyItem.innerHTML = '<p><strong>Input:</strong> ' + item.input + '</p><p><strong>Translated:</strong> ' + item.translated + '</p>';
+                    history_container.appendChild(historyItem);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

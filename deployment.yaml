@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: speech-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: speech-backend
+  template:
+    metadata:
+      labels:
+        app: speech-backend
+    spec:
+      containers:
+      - name: backend
+        image: speech-backend:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 5001
